@@ -60,6 +60,25 @@ def check_for_nearby_tracts(sorted_scores,N):
 		excluded = excluded + new_data
 	return rv
 
+def get_matching_tracts(args, sorted_scores):
+
+	where = ''# Do somethng with args to convert to query
+
+	select = 'select tract from multiple_tracts'
+	query = select + where
+
+	included_tracts = call_data_base(query)
+
+	rv = []
+	
+	for tract in sorted_scores:
+		if tract in included_tracts:
+			rv.append(tract)
+	
+	return rv
+
+
+
 # Main function for site to call
 
 def go(N):
@@ -71,8 +90,8 @@ def go(N):
 	scores = scores[1:] # Adjust for headers
 	tract_scores = get_average_score(scores)
 	sorted_scores = tract_scores[np.argsort(tract_scores[:,1])]
-	#top_N_scores = check_for_nearby_tracts(sorted_scores[:,0],N)
-	return sorted_scores[:N,0]
+	matching_scores = get_matching_tracts('_',sorted_scores[:,0])
+	return matching_scores[:N]
 
 if __name__ == '__main__':
 	pass
