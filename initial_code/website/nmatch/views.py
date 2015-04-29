@@ -13,6 +13,12 @@ class CAPP_Form(forms.Form):
 				choices=[("YES", "Gladly!")],
 				widget=forms.RadioSelect,
 				required=True)
+	## need to add fields on demographics to the form; one field for each feature
+	min_age = forms.IntegerField(
+				label="The minimum value of the median age",
+				min_value=0,
+				required=False
+				)
 
 def about(request):
 	c = {}
@@ -30,6 +36,8 @@ def survey_CAPP(request):
 		form = CAPP_Form(request.GET)
 		if form.is_valid():
 			to_map = form.cleaned_data['yes']
+			## add survey results here; one value per field
+			min_age = form.cleaned_data['min_age']
 			if to_map:
 				args['yes'] = to_map
 
@@ -39,7 +47,10 @@ def survey_CAPP(request):
 			#get matching tracts and make javascript string
 			if c['args'] is not None:
 				#gets list of matching tracts
-				tracts = go(ALL_TRACTS)
+				#tracts = go(ALL_TRACTS)
+				## filter the tracts here
+				query = gen_query("age_AGEMED", min_age, "higher")
+				tracts = go_filtered(query, ALL_TRACTS)
 				c['tracts'] = tracts
 				java_str = get_string(tracts)
 				c['java_str'] = java_str
